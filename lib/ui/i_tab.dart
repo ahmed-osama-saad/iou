@@ -138,6 +138,15 @@ class ITab extends ConsumerWidget {
                       children: [
                         Expanded(
                           child: ElevatedButton(
+                            child: const Text('Reset'),
+                            onPressed: () {
+                              _formKey.currentState?.reset();
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: ElevatedButton(
                             child: const Text('Submit'),
                             onPressed: () async {
                               if (_formKey.currentState?.saveAndValidate() ==
@@ -155,15 +164,6 @@ class ITab extends ConsumerWidget {
                                 ref.read(addReceiptProvider(r));
                                 _formKey.currentState?.reset();
                               }
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: ElevatedButton(
-                            child: const Text('Reset'),
-                            onPressed: () {
-                              _formKey.currentState?.reset();
                             },
                           ),
                         ),
