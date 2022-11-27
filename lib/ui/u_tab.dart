@@ -60,7 +60,10 @@ class UTab extends ConsumerWidget {
                   itemCount: users.length,
                   itemBuilder: (context, index) {
                     return Card(
-                      child: Text(users[index].name),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(users[index].name),
+                      ),
                     );
                   },
                 ),
