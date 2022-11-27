@@ -8,12 +8,18 @@ import 'package:image_picker/image_picker.dart';
 import 'package:iou/models/receipt.dart';
 import 'package:iou/services/providers.dart';
 
-class ITab extends ConsumerWidget {
-  final _formKey = GlobalKey<FormBuilderState>();
+class ITab extends ConsumerStatefulWidget {
   ITab({super.key});
 
+  final _formKey = GlobalKey<FormBuilderState>();
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ConsumerStatefulWidget> createState() => _ITabState();
+}
+
+class _ITabState extends ConsumerState<ITab>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  Widget build(BuildContext context) {
     final users = ref.watch(usersProvider);
     return users.when(
         data: (users) {
@@ -24,7 +30,7 @@ class ITab extends ConsumerWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
               child: FormBuilder(
-                key: _formKey,
+                key: widget._formKey,
                 child: Column(
                   children: [
                     SizedBox(
@@ -140,7 +146,7 @@ class ITab extends ConsumerWidget {
                           child: ElevatedButton(
                             child: const Text('Reset'),
                             onPressed: () {
-                              _formKey.currentState?.reset();
+                              widget._formKey.currentState?.reset();
                             },
                           ),
                         ),
@@ -149,9 +155,11 @@ class ITab extends ConsumerWidget {
                           child: ElevatedButton(
                             child: const Text('Submit'),
                             onPressed: () async {
-                              if (_formKey.currentState?.saveAndValidate() ==
+                              if (widget._formKey.currentState
+                                      ?.saveAndValidate() ==
                                   true) {
-                                final formValue = _formKey.currentState!.value;
+                                final formValue =
+                                    widget._formKey.currentState!.value;
                                 final int id =
                                     DateTime.now().millisecondsSinceEpoch;
                                 XFile? image = formValue['image'];
@@ -162,7 +170,8 @@ class ITab extends ConsumerWidget {
                                 user['id'] = id;
                                 final Receipt r = Receipt.fromMap(user);
                                 ref.read(addReceiptProvider(r));
-                                _formKey.currentState?.reset();
+                                ref.invalidate(receiptsProvider);
+                                widget._formKey.currentState?.reset();
                               }
                             },
                           ),
@@ -180,4 +189,7 @@ class ITab extends ConsumerWidget {
         },
         loading: () => const CircularProgressIndicator());
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
