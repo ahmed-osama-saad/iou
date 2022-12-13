@@ -11,26 +11,31 @@ import 'package:iou/services/providers.dart';
 class ITab extends ConsumerStatefulWidget {
   ITab({super.key});
 
-  final _formKey = GlobalKey<FormBuilderState>();
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _ITabState();
 }
 
 class _ITabState extends ConsumerState<ITab>
     with AutomaticKeepAliveClientMixin {
+  // final _formKey = GlobalKey<FormBuilderState>();
+
   @override
   Widget build(BuildContext context) {
-    final users = ref.watch(usersProvider);
-    return users.when(
+    super.build(context);
+    final _formKey = GlobalKey<FormBuilderState>();
+    final usersAsync = ref.watch(usersProvider);
+    return usersAsync.when(
         data: (users) {
           List<DropdownMenuItem> usersDropdown = users.map((user) {
             return DropdownMenuItem(value: user.id, child: Text(user.name));
           }).toList();
+          final lastReceipt = ref.watch(lastReceiptProvider);
+          print(lastReceipt.toString() + 'last');
           return SingleChildScrollView(
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
               child: FormBuilder(
-                key: widget._formKey,
+                key: _formKey,
                 child: Column(
                   children: [
                     SizedBox(
@@ -95,6 +100,7 @@ class _ITabState extends ConsumerState<ITab>
                         Expanded(
                           child: FormBuilderDropdown(
                             name: 'currency',
+                            initialValue: lastReceipt?.currency,
                             decoration:
                                 const InputDecoration(labelText: 'Currency'),
                             items: const [
@@ -122,6 +128,7 @@ class _ITabState extends ConsumerState<ITab>
                         Expanded(
                           child: FormBuilderDropdown(
                             name: 'senderId',
+                            initialValue: lastReceipt?.senderId,
                             decoration:
                                 const InputDecoration(labelText: 'sender'),
                             items: usersDropdown,
@@ -131,6 +138,7 @@ class _ITabState extends ConsumerState<ITab>
                         Expanded(
                           child: FormBuilderDropdown(
                             name: 'receiverId',
+                            initialValue: lastReceipt?.receiverId,
                             decoration:
                                 const InputDecoration(labelText: 'Receiver'),
                             items: usersDropdown,
@@ -146,7 +154,7 @@ class _ITabState extends ConsumerState<ITab>
                           child: ElevatedButton(
                             child: const Text('Reset'),
                             onPressed: () {
-                              widget._formKey.currentState?.reset();
+                              _formKey.currentState?.reset();
                             },
                           ),
                         ),
@@ -155,11 +163,9 @@ class _ITabState extends ConsumerState<ITab>
                           child: ElevatedButton(
                             child: const Text('Submit'),
                             onPressed: () async {
-                              if (widget._formKey.currentState
-                                      ?.saveAndValidate() ==
+                              if (_formKey.currentState?.saveAndValidate() ==
                                   true) {
-                                final formValue =
-                                    widget._formKey.currentState!.value;
+                                final formValue = _formKey.currentState!.value;
                                 final int id =
                                     DateTime.now().millisecondsSinceEpoch;
                                 XFile? image = formValue['image'];
@@ -170,8 +176,10 @@ class _ITabState extends ConsumerState<ITab>
                                 user['id'] = id;
                                 final Receipt r = Receipt.fromMap(user);
                                 ref.read(addReceiptProvider(r));
+                                ref.read(lastReceiptProvider.notifier).state =
+                                    r.copyWith();
                                 ref.invalidate(receiptsProvider);
-                                widget._formKey.currentState?.reset();
+                                _formKey.currentState?.reset();
                               }
                             },
                           ),

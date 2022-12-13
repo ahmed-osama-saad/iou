@@ -14,6 +14,9 @@ final addUserProvider =
     FutureProvider.family<void, User>((ref, User user) async {
   return DatabaseService().insertUser(user);
 });
+final lastReceiptProvider = StateProvider<Receipt?>((ref) {
+  return null;
+});
 final receiptsProvider = FutureProvider.autoDispose<List<Receipt>>((ref) async {
   return DatabaseService().receipts();
 });

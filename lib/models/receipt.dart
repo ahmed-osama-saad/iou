@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 
+@immutable
 class Receipt {
   final int id;
   final String? description;
